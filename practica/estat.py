@@ -4,7 +4,7 @@ from practica.joc import Accions
 
 
 class Estat:
-    def __init__(self, taulell, pos_robot: tuple[int, int], accions_previes=None):
+    def __init__(self, taulell, pos_robot: tuple[int, int], cost: int = 0, accions_previes=None):
         """
         Inicializa el estado del robot en el taulell.
         
@@ -36,10 +36,24 @@ class Estat:
         """
         return self.pos_robot == desti
 
-    def genera_fills(self, movimientos: tuple [Accions]):
+    def genera_fills(self):
         """
         Genera los posibles estados (movimientos) del robot.
         """
+        movimientos = [
+            (Accions.MOURE, "E"),
+            (Accions.MOURE, "S"),
+            (Accions.MOURE, "N"),
+            (Accions.BOTAR, "S"),
+            (Accions.MOURE, "O"),
+            (Accions.BOTAR, "N"),
+            (Accions.BOTAR, "E"),
+            (Accions.BOTAR, "O"),
+            (Accions.POSAR_PARET, "S"),
+            (Accions.POSAR_PARET, "N"),
+            (Accions.POSAR_PARET, "E"),
+            (Accions.POSAR_PARET, "O"),
+        ]
         fills = []
         for i in movimientos:
             nou_estat = copy.deepcopy(self)
@@ -48,17 +62,42 @@ class Estat:
         return fills
 
 
-    def genera_fills(self, movimientos: tuple [self.__proves]):
+    def genera_fills(self):
         """
         Genera los posibles estados (movimientos) del robot.
         """
+        movimientos = [
+            (Accions.MOURE, "E"),
+            (Accions.MOURE, "S"),
+            (Accions.MOURE, "N"),
+            (Accions.BOTAR, "S"),
+            (Accions.MOURE, "O"),
+            (Accions.BOTAR, "N"),
+            (Accions.BOTAR, "E"),
+            (Accions.BOTAR, "O"),
+            (Accions.POSAR_PARET, "S"),
+            (Accions.POSAR_PARET, "N"),
+            (Accions.POSAR_PARET, "E"),
+            (Accions.POSAR_PARET, "O"),
+        ]
         fills = []
-        for i in movimientos.len:
+        for i in movimientos:
             nou_estat = copy.deepcopy(self)
             movimientos[i]
             nou_estat.accions_previes.append(direccio)
             fills.append(nou_estat)
         return fills
+        
+    def calc_heuristica(self):
+        heuristica = 0
+
+        for lletra_es, lletra_sol in zip(self.__info, SOLUCIO):
+            if lletra_sol != " ":
+                heuristica += int(lletra_es != lletra_sol)
+
+        heuristica += pos
+
+        return heuristica + self.__pes
 
         
 """
