@@ -1,4 +1,4 @@
-from practica import agent, joc
+from practica import agent_profunditat, joc
 
 
 def main():
