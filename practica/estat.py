@@ -1,104 +1,101 @@
 import copy
-import itertools
 
-from practica.joc import Joc
+from practica.joc import Accions
+
 
 class Estat:
-    MAX_ANIMALS = 3
-
-    # QUIQUES, LLOPS
-    # Només funciona en aquest problema, fa el producte cartesià
-    moviments_poss = [
-        acc
-        for acc in itertools.product([0, 1, 2], [0, 1, 2])
-        if (acc[-1] + acc[-2]) < 3 and not (acc[-1] == 0 and acc[-2] == 0)
-    ]
-
-    def __init__(self, local_barca: str, llops_esq: int, polls_esq: int, cami=None):
-        if cami is None:
-            cami = []
-
-        self.llops_esq = llops_esq
-        self.quica_esq = polls_esq
-        self.local_barca = local_barca
-
-        self.cami = cami
+    def __init__(self, taulell, pos_robot: tuple[int, int], accions_previes=None):
+        """
+        Inicializa el estado del robot en el taulell.
+        
+        :param taulell: Una matriz (lista de listas) que representa el entorno del robot.
+        :param pos_robot: Una tupla que representa la posición actual del robot (x, y).
+        :param accions_previes: Lista de acciones anteriores realizadas por el robot.
+        """
+        self.taulell = taulell  # El taulell del entorno
+        self.pos_robot = pos_robot  # Posición actual del robot (x, y)
+        self.accions_previes = accions_previes if accions_previes is not None else []
+        self.__es_meta = None  # Indicador si se ha alcanzado el destino
 
     def __hash__(self):
-        return hash((self.llops_esq, self.quica_esq))
-
-    @property
-    def llops_dreta(self):
-        return self.MAX_ANIMALS - self.llops_esq
-
-    @property
-    def quica_dreta(self):
-        return self.MAX_ANIMALS - self.quica_esq
+        return hash(str(self.taulell) + "," + str(self.pos_robot))
 
     def __eq__(self, other):
-        """Overrides the default implementation"""
-        return (
-                self.llops_esq == other.llops_esq
-                and self.quica_esq == other.quica_esq
-                and self.local_barca == other.local_barca
-        )
+        return hash(self) == hash(other)
 
-    def _legal(self) -> bool:
-        """ Mètode per detectar si un estat és legal.
+    def __repr__(self):
+        # Representa el estado como el taulell con la posición del robot.
+        return f"Mapa: {self.taulell}, Posición del robot: {self.pos_robot}"
 
-        Un estat és legal si no hi ha cap valor negatiu ni major que el màxim
-
-        Returns:
-            Booleà indicant si és legal o no.
+    def es_meta(self, desti: tuple[int, int]) -> bool:
         """
-        return (0 <= self.llops_esq <= self.MAX_ANIMALS) and (0 <= self.quica_esq <= self.MAX_ANIMALS)
-
-    def es_meta(self) -> bool:
-        return self.quica_esq == 0 and self.llops_esq == 0
-
-    def es_segur(self) -> bool:
-        """ Únicament és segur si hi ha manco llops que gallines, o bé no hi ha gallines.
-
-        Returns:
-            Booleà indicant si és segur o no.
+        Verifica si el robot ha alcanzado su destino.
+        
+        :param desti: La posición destino en el taulell (x, y).
+        :return: True si el robot está en la posición destino.
         """
-        return (
-                self.quica_esq >= self.llops_esq or self.quica_esq == 0
-        ) and (
-                self.quica_dreta >= self.llops_dreta or self.quica_dreta == 0
-        )
+        return self.pos_robot == desti
 
-    def genera_fill(self) -> list:
-        """ Mètode per generar els estats fills.
-
-        Genera tots els estats fill a partir de l'estat actual.
-
-        Returns:
-            Llista d'estats fills generats.
+    def genera_fills(self, movimientos: tuple [Accions]):
         """
-        estats_generats = []
-
-        for moviments in self.moviments_poss:
+        Genera los posibles estados (movimientos) del robot.
+        """
+        fills = []
+        for i in movimientos:
             nou_estat = copy.deepcopy(self)
-            nou_estat.pare = (self)
-            nou_estat.cami.append(moviments)
+            nou_estat.accions_previes.append(direccio)
+            fills.append(nou_estat)
+        return fills
 
-            quiques, llops = moviments
 
-            if self.local_barca is "ESQ":
-                # Si la barca és a l'esquerra restam animals a aquella illa.
-                quiques = -quiques
-                llops = -llops
+    def genera_fills(self, movimientos: tuple [self.__proves]):
+        """
+        Genera los posibles estados (movimientos) del robot.
+        """
+        fills = []
+        for i in movimientos.len:
+            nou_estat = copy.deepcopy(self)
+            movimientos[i]
+            nou_estat.accions_previes.append(direccio)
+            fills.append(nou_estat)
+        return fills
 
-            nou_estat.local_barca = Joc.altre_lloc(self.local_barca)
-            nou_estat.quica_esq += quiques
-            nou_estat.llops_esq += llops
+        
+"""
+class Estat:
 
-            if nou_estat._legal():
-                estats_generats.append(nou_estat)
+    def __init__(self, taulell, fitxa: str, accions_previes=None):
+        self.taulell = taulell
+        self.accions_previes = accions_previes
+        self.fitxa = fitxa
 
-        return estats_generats
+        self.__es_meta = None
 
-    def __str__(self):
-        return (f"Llops esq: {self.llops_esq}, Quiques esq: {self.quica_esq} | "
-                f"Llops dreta: {self.llops_dreta}, Quiques dreta: {self.quica_dreta} | Accio {self.cami}")
+    def __hash__(self):
+        return hash(str(self.taulell) + "," + self.fitxa)
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __repr__(self):
+        return str(self.taulell)
+
+    def genera_fills(self):
+        fills = []
+
+        for pos_x in range(len(self.taulell)):
+            for pos_y in range(len(self.taulell[0])):
+                casella = self.taulell[pos_x][pos_y]
+                if casella == " ":
+                    nou_estat = copy.copy(self)
+                    nou_estat.taulell = copy.copy(self.taulell)
+
+                    nou_estat.taulell[pos_x][pos_y] = self.fitxa
+                    nou_estat.accions_previes = (pos_x, pos_y)
+                    nou_estat.fitxa = Estat.gira(self.fitxa)
+                    nou_estat.__es_meta = None
+
+                    fills.append(nou_estat)
+
+        return fills
+"""

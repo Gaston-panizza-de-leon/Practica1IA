@@ -11,8 +11,8 @@ class Viatger(joc.Viatger):
             (Accions.MOURE, "E"),
             (Accions.MOURE, "S"),
             (Accions.MOURE, "N"),
-            (Accions.MOURE, "O"),
             (Accions.BOTAR, "S"),
+            (Accions.MOURE, "O"),
             (Accions.BOTAR, "N"),
             (Accions.BOTAR, "E"),
             (Accions.BOTAR, "O"),
@@ -20,14 +20,13 @@ class Viatger(joc.Viatger):
             (Accions.POSAR_PARET, "N"),
             (Accions.POSAR_PARET, "E"),
             (Accions.POSAR_PARET, "O"),
-
         ]
 
     def pinta(self, display):
         pass
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
-        if self.__proves:
-            acc = random.choice(self.__proves)
-            return acc
+        self.visitats = dict()
+        pos_agent = percepcio["agents"]
+        estat_inicial = Estat(percepcio["taulell"], pos_agent["agent 1"])
         return Accions.ESPERAR
