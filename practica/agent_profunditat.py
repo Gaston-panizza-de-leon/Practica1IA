@@ -1,6 +1,7 @@
 import random
 
 from practica import joc
+from practica.estat import Estat
 from practica.joc import Accions
 
 
@@ -29,5 +30,10 @@ class Viatger(joc.Viatger):
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
         if self.__proves:
             acc = random.choice(self.__proves)
+            agents = percepcio["AGENTS"]
+
+            # Obtener la posición del "agente 1"
+            posicion_agente_1 = agents["Agent 1"]
+            print(posicion_agente_1)
             return acc
         return Accions.ESPERAR

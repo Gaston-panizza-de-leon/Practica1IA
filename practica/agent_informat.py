@@ -1,4 +1,5 @@
 import random
+from queue import PriorityQueue
 
 from practica import joc
 from practica.joc import Accions
@@ -28,8 +29,8 @@ class Viatger(joc.Viatger):
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
         
-        pos_agent = percepcio["agents"]
-        estat_inicial = Estat(percepcio["taulell"], pos_agent["agent 1"])
+        pos_agent = percepcio["AGENTS"]
+        estat_inicial = Estat(percepcio["TAULELL"], pos_agent["Agent 1"])
         if self.visitats:
             return cerca(self,estat_inicial)
         else:

@@ -87,17 +87,12 @@ class Estat:
             nou_estat.accions_previes.append(direccio)
             fills.append(nou_estat)
         return fills
-        
-    def calc_heuristica(self):
-        heuristica = 0
 
-        for lletra_es, lletra_sol in zip(self.__info, SOLUCIO):
-            if lletra_sol != " ":
-                heuristica += int(lletra_es != lletra_sol)
-
-        heuristica += pos
-
-        return heuristica + self.__pes
+    def heuristica(self):
+        # Calcular la distancia Manhattan entre el agente y la meta
+        distancia_x = abs(self.pos_robot[0] - self.posicion_meta[0])
+        distancia_y = abs(self.pos_robot[1] - self.posicion_meta[1])
+        return distancia_x + distancia_y  # Distancia Manhattan
 
         
 """
