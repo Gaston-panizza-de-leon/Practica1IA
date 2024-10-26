@@ -4,7 +4,7 @@ from practica.joc import Accions
 
 
 class Estat:
-    def __init__(self, taulell, pos_robot: tuple[int, int], cost: int = 0, accions_previes=None):
+    def __init__(self, taulell, paredes, pos_robot: tuple[int, int], cost: int = 0, accions_previes=None):
         """
         Inicializa el estado del robot en el taulell.
         
@@ -13,6 +13,7 @@ class Estat:
         :param accions_previes: Lista de acciones anteriores realizadas por el robot.
         """
         self.taulell = taulell  # El taulell del entorno
+        self.paredes = paredes
         self.pos_robot = pos_robot  # Posición actual del robot (x, y)
         self.accions_previes = accions_previes if accions_previes is not None else []
         self.__es_meta = None  # Indicador si se ha alcanzado el destino
@@ -60,10 +61,10 @@ class Estat:
             fills.append(nou_estat)
         return fills
 """
-    def genera_fills(self, mapa, n):
+    def genera_fills(self):
         fills = []
         x, y = self.pos_robot
-
+        limite = len(self.taulell)
         movimientos = [
             (Accions.MOURE, "E"),
             (Accions.MOURE, "S"),
@@ -86,18 +87,21 @@ class Estat:
             "E": (0, 1),
             "O": (0, -1)
         }
+
         for accio, direccio in movimientos:
             dx, dy = direccions[direccio]
             nou_x, nou_y = x + dx, y + dy
 
             # Movimiento normal (MOURE)
             if accio == Accions.MOURE:
-                if 0 <= nou_x < n and 0 <= nou_y < n and mapa[nou_x][nou_y] != "P":  # Verifica límites y paredes
+                if 0 <= nou_x < limite and 0 <= nou_y < limite and self.taulell[nou_x][nou_y] not in self.paredes:  # Verifica límites y paredes
                     fills.append(
                         Estat(
+                            self.taulell,
+                            self.paredes,
                             (nou_x, nou_y),
-                            self.__pes + 1,
-                            self.__accions_previes + [(Accions.MOURE, direccio)]
+                            self.cost + 1,
+                            self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
 
@@ -105,37 +109,39 @@ class Estat:
             elif accio == Accions.BOTAR:
                 nou_x += dx
                 nou_y += dy
-                if 0 <= nou_x < n and 0 <= nou_y < n and mapa[nou_x][nou_y] != "P":  # Verifica límites y paredes
+                if 0 <= nou_x < limite and 0 <= nou_y < limite and self.taulell[nou_x][nou_y] not in self.paredes:  # Verifica límites y paredes
                     fills.append(
                         Estat(
+                            self.taulell,
+                            self.paredes,
                             (nou_x, nou_y),
-                            self.__pes + 2,
-                            self.__accions_previes + [(Accions.BOTAR, direccio)]
+                            self.cost + 2,
+                            self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
 
             # Poner pared (POSAR_PARET) - Añade una pared en la dirección indicada si es un espacio vacío
             elif accio == Accions.POSAR_PARET:
                 paret_x, paret_y = x + dx, y + dy
-                if 0 <= paret_x < n and 0 <= paret_y < n and mapa[paret_x][paret_y] == " ":
-                    nou_mapa = [fila[:] for fila in mapa]  # Copia profunda del mapa para crear un nuevo estado
-                    nou_mapa[paret_x][paret_y] = "P"  # Coloca la pared en la nueva posición
+                if 0 <= paret_x < limite and 0 <= paret_y < limite and self.taulell[paret_x][paret_y] == "":
+                    nueva_pared = tuple[paret_x,paret_y]
+                    self.paredes.append(nueva_pared)
                     fills.append(
                         Estat(
-                            (x, y),  # El robot permanece en la misma posición
-                            self.__pes + 3,
-                            self.__accions_previes + [(Accions.POSAR_PARET, direccio)],
-                            mapa=nou_mapa  # Almacena el mapa modificado en el nuevo estado
+                            self.taulell,
+                            self.paredes,
+                            (nou_x, nou_y),
+                            self.cost + 4,
+                            self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
 
         return fills
 
-    def heuristica(self) -> int:
-        # Calcular la distancia Manhattan entre el agente y la meta
-        distancia_x = abs(self.pos_robot[0] - self.posicion_meta[0])
-        distancia_y = abs(self.pos_robot[1] - self.posicion_meta[1])
-        return distancia_x + distancia_y + self.cost  # Distancia Manhattan
+    def heuristica(self, desti: tuple[int, int]) -> int:
+        distancia_x = abs(self.pos_robot[0] - desti[0])
+        distancia_y = abs(self.pos_robot[1] - desti[1])
+        return distancia_x + distancia_y + self.cost
 
         
 """

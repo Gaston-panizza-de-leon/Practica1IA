@@ -20,34 +20,38 @@ class Viatger(joc.Viatger):
         self.__oberts = PriorityQueue()
         self.__tancats = set()
 
-
-
-        self.__oberts.put((estat.calc_heuristica(), estat))
+        self.__oberts.put((estat.heuristica(desti), estat))
 
         actual = None
         while not self.__oberts.empty():
             _, actual = self.__oberts.get()
             if actual in self.__tancats:
                 continue
-            if actual.es_meta():
+            if actual.es_meta(desti):
                 break
 
             estats_fills = actual.genera_fills()
 
             for estat_f in estats_fills:
-                self.__oberts.put((estat_f.calc_heuristica(), estat_f))
+                self.__oberts.put((estat_f.heuristica(desti), estat_f))
 
             self.__tancats.add(actual)
 
         if estat.es_meta(desti):
-            return estat.accions_previes
+            self.__accions = estat.accions_previes
 
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
         
         pos_agent = percepcio["AGENTS"]
-        estat_inicial = Estat(percepcio["TAULELL"], pos_agent["Agent 1"])
-        if self.visitats:
-            return self.cerca(self, estat_inicial, percepcio["DESTI"])
+        estat_inicial = Estat(percepcio["TAULELL"],percepcio["PARETS"], pos_agent["Agent 1"])
+        desti = percepcio["DESTI"]
+        if self.__accions is None:
+             self.cerca(estat_inicial, desti)
+
+        if self.__accions:
+            acc = self.__accions.pop(0)
+
+            return acc[0], acc[1]
         else:
             return Accions.ESPERAR
