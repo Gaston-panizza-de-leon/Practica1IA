@@ -8,7 +8,7 @@ from practica.joc import Accions
 class Viatger(joc.Viatger):
     def __init__(self, *args, **kwargs):
         super(Viatger, self).__init__(*args, **kwargs)
-        self.__proves = [
+        self.__moviments = [
             (Accions.MOURE, "E"),
             (Accions.MOURE, "S"),
             (Accions.MOURE, "N"),
@@ -26,6 +26,28 @@ class Viatger(joc.Viatger):
 
     def pinta(self, display):
         pass
+
+
+def DFS(self, percepcio: dict, inicio, desti):
+    # Pila para mantener las casillas por explorar y las acciones realizadas hasta llegar allí
+    stack = [(inicio, [])]  # Cada elemento será (casilla, lista de acciones realizadas)
+    visitados = set()  # Conjunto para registrar las casillas visitadas
+    visitados.add((inicio.x, inicio.y))  # Marcamos la casilla inicial como visitada
+
+    while True:
+        pos_agent = percepcio["AGENTS"]
+
+        # Probar cada acción posible
+        for i in self.__moviments:
+            acc = self.__moviments[i]
+
+            stack.__add__(acc)
+            if pos_agent["Agent 1"] == (desti.x, desti.y):
+                return stack
+
+        # Si no encontramos el objetivo, devolvemos False
+        return False
+
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
         if self.__proves:
