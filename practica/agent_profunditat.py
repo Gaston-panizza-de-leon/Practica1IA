@@ -1,5 +1,7 @@
 import random
 
+from sklearn.decomposition import FastICA
+
 from practica import joc
 from practica.estat import Estat
 from practica.joc import Accions
@@ -8,54 +10,53 @@ from practica.joc import Accions
 class Viatger(joc.Viatger):
     def __init__(self, *args, **kwargs):
         super(Viatger, self).__init__(*args, **kwargs)
-        self.__moviments = [
-            (Accions.MOURE, "E"),
-            (Accions.MOURE, "S"),
-            (Accions.MOURE, "N"),
-            (Accions.MOURE, "O"),
-            (Accions.BOTAR, "S"),
-            (Accions.BOTAR, "N"),
-            (Accions.BOTAR, "E"),
-            (Accions.BOTAR, "O"),
-            (Accions.POSAR_PARET, "S"),
-            (Accions.POSAR_PARET, "N"),
-            (Accions.POSAR_PARET, "E"),
-            (Accions.POSAR_PARET, "O"),
+        self.__oberts = None
+        self.__tancats = None
+        self.__accions = None
 
-        ]
 
     def pinta(self, display):
         pass
 
 
-def DFS(self, percepcio: dict, inicio, desti):
-    # Pila para mantener las casillas por explorar y las acciones realizadas hasta llegar allí
-    stack = [(inicio, [])]  # Cada elemento será (casilla, lista de acciones realizadas)
-    visitados = set()  # Conjunto para registrar las casillas visitadas
-    visitados.add((inicio.x, inicio.y))  # Marcamos la casilla inicial como visitada
+    def cerca(self, inicial: Estat, desti):
+        self.__oberts = []
+        self.__tancats = set() # Cada elemento será (casilla, lista de acciones realizadas)
+        # Pila para mantener las casillas por explorar y las acciones realizadas hasta llegar allí 
+        
+        self.__oberts.append(inicial)  # Marcamos la casilla inicial como visitada
+        
+        while self.__oberts:
+            
+            estado = self.__oberts.pop(-1)
 
-    while True:
-        pos_agent = percepcio["AGENTS"]
+            if estado in self.__tancats:
+                continue
 
-        # Probar cada acción posible
-        for i in self.__moviments:
-            acc = self.__moviments[i]
+            if estado.es_meta(desti):
+                self.__accions = estado.accions_previes
+                return self.__accions
 
-            stack.__add__(acc)
-            if pos_agent["Agent 1"] == (desti.x, desti.y):
-                return stack
+            for f in estado.genera_fills():
+                self.__oberts.append(f)
 
-        # Si no encontramos el objetivo, devolvemos False
+            self.__tancats.add(estado)
+
         return False
 
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
-        if self.__proves:
-            acc = random.choice(self.__proves)
-            agents = percepcio["AGENTS"]
 
-            # Obtener la posición del "agente 1"
-            posicion_agente_1 = agents["Agent 1"]
-            print(posicion_agente_1)
-            return acc
-        return Accions.ESPERAR
+        pos_agent = percepcio["AGENTS"]
+        estat_inicial = Estat(percepcio["TAULELL"], percepcio["PARETS"], pos_agent["Agent 1"])
+        desti = percepcio["DESTI"]
+        if self.__accions is None:
+            self.cerca(estat_inicial, desti)
+
+        if self.__accions:
+            print(pos_agent["Agent 1"])
+            acc = self.__accions.pop(0)
+            print("Acaba")
+            return acc[0], acc[1]
+        else:
+            return Accions.ESPERAR

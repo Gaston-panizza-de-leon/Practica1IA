@@ -5,7 +5,7 @@ def main():
     mida = (6, 6)
 
     agents = [
-        agent_informat.Viatger("Agent 1", mida_taulell=mida)
+        agent_profunditat.Viatger("Agent 1", mida_taulell=mida)
         #agent_profunditat.Viatger("Agent 2", mida_taulell=mida),
     ]
 

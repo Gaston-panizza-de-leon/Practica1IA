@@ -32,7 +32,7 @@ class Viatger(joc.Viatger):
             return acc
         return Accions.ESPERAR
 
-------------------------------------------
+#------------------------------------------
 
 import enum
 from typing import Tuple, List

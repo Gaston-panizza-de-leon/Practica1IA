@@ -16,18 +16,19 @@ class Estat:
         self.paredes = paredes
         self.pos_robot = pos_robot  # Posición actual del robot (x, y)
         self.accions_previes = accions_previes if accions_previes is not None else []
-        self.__es_meta = None  # Indicador si se ha alcanzado el destino
         self.cost = cost
 
     def __hash__(self):
-        return hash(str(self.taulell) + "," + str(self.pos_robot))
+        return hash(str(self.taulell))
 
     def __eq__(self, other):
         return hash(self) == hash(other)
 
     def __repr__(self):
-        # Representa el estado como el taulell con la posición del robot.
-        return f"Mapa: {self.taulell}, Posición del robot: {self.pos_robot}"
+        return str(self.taulell)
+
+    def __lt__(self, other):
+        return False
 
     def es_meta(self, desti: tuple[int, int]) -> bool:
         """
@@ -38,33 +39,10 @@ class Estat:
         """
         return self.pos_robot == desti
 
-    """
-    def genera_fills(self):
-        movimientos = [
-            (Accions.MOURE, "E"),
-            (Accions.MOURE, "S"),
-            (Accions.MOURE, "N"),
-            (Accions.BOTAR, "S"),
-            (Accions.MOURE, "O"),
-            (Accions.BOTAR, "N"),
-            (Accions.BOTAR, "E"),
-            (Accions.BOTAR, "O"),
-            (Accions.POSAR_PARET, "S"),
-            (Accions.POSAR_PARET, "N"),
-            (Accions.POSAR_PARET, "E"),
-            (Accions.POSAR_PARET, "O"),
-        ]
-        fills = []
-        for i in movimientos:
-            nou_estat = copy.deepcopy(self)
-            nou_estat.accions_previes.append(direccio)
-            fills.append(nou_estat)
-        return fills
-"""
     def genera_fills(self):
         fills = []
         x, y = self.pos_robot
-        limite = len(self.taulell)
+
         movimientos = [
             (Accions.MOURE, "E"),
             (Accions.MOURE, "S"),
@@ -94,7 +72,7 @@ class Estat:
 
             # Movimiento normal (MOURE)
             if accio == Accions.MOURE:
-                if 0 <= nou_x < limite and 0 <= nou_y < limite and self.taulell[nou_x][nou_y] not in self.paredes:  # Verifica límites y paredes
+                if self.es_posible(nou_x,nou_y):  # Verifica límites y paredes
                     fills.append(
                         Estat(
                             self.taulell,
@@ -109,7 +87,7 @@ class Estat:
             elif accio == Accions.BOTAR:
                 nou_x += dx
                 nou_y += dy
-                if 0 <= nou_x < limite and 0 <= nou_y < limite and self.taulell[nou_x][nou_y] not in self.paredes:  # Verifica límites y paredes
+                if self.es_posible(nou_x,nou_y):  # Verifica límites y paredes
                     fills.append(
                         Estat(
                             self.taulell,
@@ -123,7 +101,7 @@ class Estat:
             # Poner pared (POSAR_PARET) - Añade una pared en la dirección indicada si es un espacio vacío
             elif accio == Accions.POSAR_PARET:
                 paret_x, paret_y = x + dx, y + dy
-                if 0 <= paret_x < limite and 0 <= paret_y < limite and self.taulell[paret_x][paret_y] == "":
+                if self.es_posible(paret_x,paret_y) and self.taulell[paret_x][paret_y] == "":
                     nueva_pared = tuple[paret_x,paret_y]
                     self.paredes.append(nueva_pared)
                     fills.append(
@@ -135,7 +113,6 @@ class Estat:
                             self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
-
         return fills
 
     def heuristica(self, desti: tuple[int, int]) -> int:
@@ -143,42 +120,7 @@ class Estat:
         distancia_y = abs(self.pos_robot[1] - desti[1])
         return distancia_x + distancia_y + self.cost
 
-        
-"""
-class Estat:
-
-    def __init__(self, taulell, fitxa: str, accions_previes=None):
-        self.taulell = taulell
-        self.accions_previes = accions_previes
-        self.fitxa = fitxa
-
-        self.__es_meta = None
-
-    def __hash__(self):
-        return hash(str(self.taulell) + "," + self.fitxa)
-
-    def __eq__(self, other):
-        return hash(self) == hash(other)
-
-    def __repr__(self):
-        return str(self.taulell)
-
-    def genera_fills(self):
-        fills = []
-
-        for pos_x in range(len(self.taulell)):
-            for pos_y in range(len(self.taulell[0])):
-                casella = self.taulell[pos_x][pos_y]
-                if casella == " ":
-                    nou_estat = copy.copy(self)
-                    nou_estat.taulell = copy.copy(self.taulell)
-
-                    nou_estat.taulell[pos_x][pos_y] = self.fitxa
-                    nou_estat.accions_previes = (pos_x, pos_y)
-                    nou_estat.fitxa = Estat.gira(self.fitxa)
-                    nou_estat.__es_meta = None
-
-                    fills.append(nou_estat)
-
-        return fills
-"""
+    def es_posible(self, x_nou: int, y_nou: int):
+        limite = len(self.taulell)
+        print(x_nou,y_nou)
+        return 0 <= x_nou < limite and 0 <= y_nou < limite and self.taulell[x_nou][y_nou] not in self.paredes
