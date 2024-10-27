@@ -28,6 +28,8 @@ class Viatger(joc.Viatger):
             if actual in self.__tancats:
                 continue
             if actual.es_meta(desti):
+                print("YESSSSSSSSSSSSSSS")
+                self.__accions = actual.accions_previes
                 break
 
             estats_fills = actual.genera_fills()
@@ -37,8 +39,6 @@ class Viatger(joc.Viatger):
 
             self.__tancats.add(actual)
 
-        if estat.es_meta(desti):
-            self.__accions = estat.accions_previes
 
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:

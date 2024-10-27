@@ -24,32 +24,22 @@ class Viatger(joc.Viatger):
 
         ]
 
-#    def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
-#        if self.__proves:
-#            acc = random.choice(self.__proves)
-#            return acc
-#        return Accions.ESPERAR
-
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    PODA = True
-
-    def cerca(self, estat, alpha, beta, torn_max=True):
-        if estat.es_meta():
+    def cerca(self, estat, alpha, beta, desti: tuple [int,int],  torn_max=True, ):
+        if estat.es_meta(desti):
             return estat, (1 if not torn_max else -1)
 
         puntuacio_fills = []
+
         for fill in estat.genera_fills():
             if fill not in self.__tancats:
-                punt_fill = self.cerca(fill, alpha, beta, not torn_max)
+                punt_fill = self.cerca(fill, alpha, beta, desti, not torn_max)
 
-                if Viatger.PODA:
-                    if torn_max:
-                        alpha = max(alpha, punt_fill[1])
-                    else:
-                        beta = min(beta, punt_fill[1])
-                    if alpha > beta:
-                        break
+                if torn_max:
+                    alpha = max(alpha, punt_fill[1])
+                else:
+                    beta = min(beta, punt_fill[1])
+                if alpha > beta:
+                    break
 
                 self.__tancats[fill] = punt_fill
             puntuacio_fills.append(self.__tancats[fill])
@@ -62,15 +52,16 @@ class Viatger(joc.Viatger):
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
         self.__tancats = {}
-        posicio_inicial = percepcio["AGENTS"][self.nom]
+        posicio_inicial = percepcio["AGENTS"]
         desti = percepcio["DESTI"]
         parets = percepcio["PARETS"]
-
-        estat_inicial = Estat(percepcio["taulell"], desti, parets)
-        res = self.cerca(estat_inicial, alpha=-float('inf'), beta=float('inf'))
+        alpha = -float('inf')
+        beta = float('inf')
+        estat_inicial = Estat(percepcio["TAULELL"],parets, posicio_inicial["Agent 1"])
+        res = self.cerca(estat_inicial, alpha, beta, desti)
 
         if isinstance(res, tuple) and res[0].accions_previes:
             solucio, _ = res
-            return Accio.MOURE, solucio.accions_previes[0][1]
+            return Accions.MOURE, solucio.accions_previes[0][1]
         else:
-            return Accio.ESPERAR
+            return Accions.ESPERAR

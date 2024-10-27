@@ -4,7 +4,7 @@ from practica.joc import Accions
 
 
 class Estat:
-    def __init__(self, taulell, paredes, pos_robot: tuple[int, int], cost: int = 0, accions_previes=None):
+    def __init__(self, taulell, paredes, pos_robot: tuple[int, int],pos_robot2: tuple[int,int], cost: int = 0, accions_previes=None):
         """
         Inicializa el estado del robot en el taulell.
         
@@ -15,22 +15,36 @@ class Estat:
         self.taulell = taulell  # El taulell del entorno
         self.paredes = paredes
         self.pos_robot = pos_robot  # Posición actual del robot (x, y)
+        self.pos_robot2 = pos_robot2
         self.accions_previes = accions_previes if accions_previes is not None else []
         self.cost = cost
 
+    movimientos = [
+        (Accions.MOURE, "E"),
+        (Accions.MOURE, "S"),
+        (Accions.MOURE, "N"),
+        (Accions.MOURE, "O"),
+        (Accions.BOTAR, "S"),
+        (Accions.BOTAR, "N"),
+        (Accions.BOTAR, "E"),
+        (Accions.BOTAR, "O"),
+        (Accions.POSAR_PARET, "S"),
+        (Accions.POSAR_PARET, "N"),
+        (Accions.POSAR_PARET, "E"),
+        (Accions.POSAR_PARET, "O"),
+    ]
+
     def __hash__(self):
-        # Usa una combinación de la posición del robot y una tupla de las paredes para el hash
-        return hash((self.pos_robot, tuple(self.paredes)))
+        return hash(str(self.taulell))
 
     def __eq__(self, other):
-        # Considera estados iguales si la posición y las paredes son iguales
-        return isinstance(other, Estat) and self.pos_robot == other.pos_robot and self.paredes == other.paredes
+        return hash(self) == hash(other)
 
     def __repr__(self):
         return str(self.taulell)
 
     def __lt__(self, other):
-        return self.cost > other.cost
+        return False
 
     def es_meta(self, desti: tuple[int, int]) -> bool:
         """
@@ -39,36 +53,27 @@ class Estat:
         :param desti: La posición destino en el taulell (x, y).
         :return: True si el robot está en la posición destino.
         """
-        return self.pos_robot == desti
+        return self.pos_robot == desti or self.pos_robot2 == desti
+    def generar_fills(self, torn: bool):
+        if torn:
+            self._genera_fills(self.pos_robot)
+        else:
+            self._genera_fills(self.pos_robot2)
 
-    def genera_fills(self):
+
+    def _genera_fills(self, pos_robot: tuple [int,int]):
         fills = []
-        x, y = self.pos_robot
-
-        movimientos = [
-            (Accions.MOURE, "E"),
-            (Accions.MOURE, "S"),
-            (Accions.MOURE, "N"),
-            (Accions.MOURE, "O"),
-            (Accions.BOTAR, "S"),
-            (Accions.BOTAR, "N"),
-            (Accions.BOTAR, "E"),
-            (Accions.BOTAR, "O"),
-            (Accions.POSAR_PARET, "S"),
-            (Accions.POSAR_PARET, "N"),
-            (Accions.POSAR_PARET, "E"),
-            (Accions.POSAR_PARET, "O"),
-        ]
+        x, y = pos_robot
 
         # Lista de desplazamientos para los movimientos y saltos
         direccions = {
-            "N": (0, -1),
-            "O": (-1, 0),
-            "S": (0, 1),
-            "E": (1, 0),
+            "N": (-1, 0),
+            "S": (1, 0),
+            "E": (0, 1),
+            "O": (0, -1)
         }
 
-        for accio, direccio in movimientos:
+        for accio, direccio in self.movimientos:
             dx, dy = direccions[direccio]
             nou_x, nou_y = x + dx, y + dy
 
@@ -81,7 +86,7 @@ class Estat:
                             self.paredes,
                             (nou_x, nou_y),
                             self.cost + 1,
-                            self.accions_previes + [(Accions.MOURE, direccio)]
+                            self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
 
@@ -102,21 +107,19 @@ class Estat:
 
             # Poner pared (POSAR_PARET) - Añade una pared en la dirección indicada si es un espacio vacío
             elif accio == Accions.POSAR_PARET:
-
                 paret_x, paret_y = x + dx, y + dy
-                if self.es_posible(paret_x,paret_y):
-                    nueva_pared = (paret_x,paret_y)
-                    self.paredes.add(nueva_pared)
+                if self.es_posible(paret_x,paret_y) and self.taulell[paret_x][paret_y] == "":
+                    nueva_pared = tuple[paret_x,paret_y]
+                    self.paredes.append(nueva_pared)
                     fills.append(
                         Estat(
                             self.taulell,
                             self.paredes,
                             (nou_x, nou_y),
                             self.cost + 4,
-                            self.accions_previes + [(Accions.POSAR_PARET, direccio)]
+                            self.accions_previes + [(Accions.BOTAR, direccio)]
                         )
                     )
-
         return fills
 
     def heuristica(self, desti: tuple[int, int]) -> int:
@@ -126,6 +129,5 @@ class Estat:
 
     def es_posible(self, x_nou: int, y_nou: int):
         limite = len(self.taulell)
-        casilla_posible = (x_nou, y_nou)
         print(x_nou,y_nou)
-        return 0 <= x_nou < limite and 0 <= y_nou < limite and casilla_posible not in self.paredes
+        return 0 <= x_nou < limite and 0 <= y_nou < limite and self.taulell[x_nou][y_nou] not in self.paredes

@@ -2,7 +2,7 @@ from practica import agent_profunditat,agent_informat,agent_Min_Max, joc
 
 
 def main():
-    mida = (6, 6)
+    mida = (10, 10)
 
     agents = [
         agent_profunditat.Viatger("Agent 1", mida_taulell=mida)
