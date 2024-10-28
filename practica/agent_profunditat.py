@@ -1,6 +1,3 @@
-import random
-
-from sklearn.decomposition import FastICA
 
 from practica import joc
 from practica.estat import Estat
@@ -32,7 +29,6 @@ class Viatger(joc.Viatger):
 
             if estado in self.__tancats:
                 continue
-
             if estado.es_meta(desti):
                 self.__accions = estado.accions_previes
                 return self.__accions
@@ -56,7 +52,6 @@ class Viatger(joc.Viatger):
         if self.__accions:
             print(pos_agent["Agent 1"])
             acc = self.__accions.pop(0)
-            print("Acaba")
             return acc[0], acc[1]
         else:
             return Accions.ESPERAR

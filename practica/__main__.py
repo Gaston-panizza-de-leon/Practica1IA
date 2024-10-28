@@ -2,11 +2,11 @@ from practica import agent_profunditat,agent_informat,agent_Min_Max, joc
 
 
 def main():
-    mida = (10, 10)
+    mida = (6, 6)
 
     agents = [
-        agent_profunditat.Viatger("Agent 1", mida_taulell=mida)
-        #agent_profunditat.Viatger("Agent 2", mida_taulell=mida),
+        agent_Min_Max.Viatger("Agent 1", mida_taulell=mida),
+        agent_Min_Max.Viatger("Agent 2", mida_taulell=mida)
     ]
 
     lab = joc.Laberint(agents, mida_taulell=mida)

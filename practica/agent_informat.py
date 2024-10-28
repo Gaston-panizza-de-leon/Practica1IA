@@ -1,4 +1,4 @@
-import random
+
 from queue import PriorityQueue
 
 from practica import joc
@@ -51,7 +51,6 @@ class Viatger(joc.Viatger):
 
         if self.__accions:
             acc = self.__accions.pop(0)
-
             return acc[0], acc[1]
         else:
             return Accions.ESPERAR

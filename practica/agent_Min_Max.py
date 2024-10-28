@@ -2,27 +2,13 @@ import random
 
 from practica import joc
 from practica.joc import Accions
-from practica.estat import Estat
+from practica.estatMin_Max import Estat
 
 
 class Viatger(joc.Viatger):
     def __init__(self, *args, **kwargs):
         super(Viatger, self).__init__(*args, **kwargs)
-        self.__proves = [
-            (Accions.MOURE, "E"),
-            (Accions.MOURE, "S"),
-            (Accions.MOURE, "N"),
-            (Accions.MOURE, "O"),
-            (Accions.BOTAR, "S"),
-            (Accions.BOTAR, "N"),
-            (Accions.BOTAR, "E"),
-            (Accions.BOTAR, "O"),
-            (Accions.POSAR_PARET, "S"),
-            (Accions.POSAR_PARET, "N"),
-            (Accions.POSAR_PARET, "E"),
-            (Accions.POSAR_PARET, "O"),
-
-        ]
+        self._nombre = args[0]
 
     def cerca(self, estat, alpha, beta, desti: tuple [int,int],  torn_max=True, ):
         if estat.es_meta(desti):
@@ -30,7 +16,7 @@ class Viatger(joc.Viatger):
 
         puntuacio_fills = []
 
-        for fill in estat.genera_fills():
+        for fill in estat.genera_fills(torn_max):
             if fill not in self.__tancats:
                 punt_fill = self.cerca(fill, alpha, beta, desti, not torn_max)
 
@@ -42,9 +28,11 @@ class Viatger(joc.Viatger):
                     break
 
                 self.__tancats[fill] = punt_fill
+
             puntuacio_fills.append(self.__tancats[fill])
 
         puntuacio_fills = sorted(puntuacio_fills, key=lambda x: x[1])
+        assert puntuacio_fills, "La lista 'puntuacio_fills' está vacía, pero no debería estarlo"
         if torn_max:
             return puntuacio_fills[0]   # Puntuación mas baja
         else:
@@ -57,7 +45,12 @@ class Viatger(joc.Viatger):
         parets = percepcio["PARETS"]
         alpha = -float('inf')
         beta = float('inf')
-        estat_inicial = Estat(percepcio["TAULELL"],parets, posicio_inicial["Agent 1"])
+        if self._nombre == "Agent 1":
+            posicion_inicial2 = posicio_inicial["Agent 2"]
+        else:
+            posicion_inicial2 = posicio_inicial["Agent 1"]
+
+        estat_inicial = Estat(percepcio["TAULELL"], parets, posicio_inicial[self._nombre], posicion_inicial2)
         res = self.cerca(estat_inicial, alpha, beta, desti)
 
         if isinstance(res, tuple) and res[0].accions_previes:

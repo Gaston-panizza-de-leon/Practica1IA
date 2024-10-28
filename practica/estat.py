@@ -111,7 +111,7 @@ class Estat:
                         Estat(
                             self.taulell,
                             self.paredes,
-                            (nou_x, nou_y),
+                            (x, y),
                             self.cost + 4,
                             self.accions_previes + [(Accions.POSAR_PARET, direccio)]
                         )
