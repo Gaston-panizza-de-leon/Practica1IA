@@ -10,18 +10,15 @@ class Viatger(joc.Viatger):
         self.__oberts = None
         self.__tancats = None
         self.__accions = None
-
+        self.__nom = args[0]
 
     def pinta(self, display):
         pass
 
-
     def cerca(self, inicial: Estat, desti):
         self.__oberts = []
-        self.__tancats = set() # Cada elemento será (casilla, lista de acciones realizadas)
-        # Pila para mantener las casillas por explorar y las acciones realizadas hasta llegar allí 
-        
-        self.__oberts.append(inicial)  # Marcamos la casilla inicial como visitada
+        self.__tancats = set()
+        self.__oberts.append(inicial)
         
         while self.__oberts:
             
@@ -31,6 +28,7 @@ class Viatger(joc.Viatger):
                 continue
             if estado.es_meta(desti):
                 self.__accions = estado.accions_previes
+                print(len(self.__accions))
                 return self.__accions
 
             for f in estado.genera_fills():
@@ -39,7 +37,6 @@ class Viatger(joc.Viatger):
             self.__tancats.add(estado)
 
         return False
-
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
 
@@ -50,7 +47,6 @@ class Viatger(joc.Viatger):
             self.cerca(estat_inicial, desti)
 
         if self.__accions:
-            print(pos_agent["Agent 1"])
             acc = self.__accions.pop(0)
             return acc[0], acc[1]
         else:

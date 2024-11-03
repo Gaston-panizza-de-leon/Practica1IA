@@ -1,29 +1,20 @@
-import copy
 
 from practica.joc import Accions
 
 
 class Estat:
     def __init__(self, taulell, paredes, pos_robot: tuple[int, int], cost: int = 0, accions_previes=None):
-        """
-        Inicializa el estado del robot en el taulell.
-        
-        :param taulell: Una matriz (lista de listas) que representa el entorno del robot.
-        :param pos_robot: Una tupla que representa la posición actual del robot (x, y).
-        :param accions_previes: Lista de acciones anteriores realizadas por el robot.
-        """
-        self.taulell = taulell  # El taulell del entorno
+
+        self.taulell = taulell
         self.paredes = paredes
-        self.pos_robot = pos_robot  # Posición actual del robot (x, y)
+        self.pos_robot = pos_robot
         self.accions_previes = accions_previes if accions_previes is not None else []
         self.cost = cost
 
     def __hash__(self):
-        # Usa una combinación de la posición del robot y una tupla de las paredes para el hash
         return hash((self.pos_robot, tuple(self.paredes)))
 
     def __eq__(self, other):
-        # Considera estados iguales si la posición y las paredes son iguales
         return isinstance(other, Estat) and self.pos_robot == other.pos_robot and self.paredes == other.paredes
 
     def __repr__(self):
@@ -33,12 +24,6 @@ class Estat:
         return self.cost > other.cost
 
     def es_meta(self, desti: tuple[int, int]) -> bool:
-        """
-        Verifica si el robot ha alcanzado su destino.
-        
-        :param desti: La posición destino en el taulell (x, y).
-        :return: True si el robot está en la posición destino.
-        """
         return self.pos_robot == desti
 
     def genera_fills(self):
@@ -60,7 +45,6 @@ class Estat:
             (Accions.POSAR_PARET, "O"),
         ]
 
-        # Lista de desplazamientos para los movimientos y saltos
         direccions = {
             "N": (0, -1),
             "O": (-1, 0),
@@ -72,9 +56,9 @@ class Estat:
             dx, dy = direccions[direccio]
             nou_x, nou_y = x + dx, y + dy
 
-            # Movimiento normal (MOURE)
+
             if accio == Accions.MOURE:
-                if self.es_posible(nou_x,nou_y):  # Verifica límites y paredes
+                if self.es_posible(nou_x,nou_y):
                     fills.append(
                         Estat(
                             self.taulell,
@@ -85,11 +69,10 @@ class Estat:
                         )
                     )
 
-            # Salto (BOTAR) - salta una casilla más en la dirección dada
             elif accio == Accions.BOTAR:
                 nou_x += dx
                 nou_y += dy
-                if self.es_posible(nou_x,nou_y):  # Verifica límites y paredes
+                if self.es_posible(nou_x,nou_y):
                     fills.append(
                         Estat(
                             self.taulell,
@@ -100,7 +83,6 @@ class Estat:
                         )
                     )
 
-            # Poner pared (POSAR_PARET) - Añade una pared en la dirección indicada si es un espacio vacío
             elif accio == Accions.POSAR_PARET:
 
                 paret_x, paret_y = x + dx, y + dy
@@ -127,5 +109,4 @@ class Estat:
     def es_posible(self, x_nou: int, y_nou: int):
         limite = len(self.taulell)
         casilla_posible = (x_nou, y_nou)
-        print(x_nou,y_nou)
         return 0 <= x_nou < limite and 0 <= y_nou < limite and casilla_posible not in self.paredes

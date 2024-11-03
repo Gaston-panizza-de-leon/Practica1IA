@@ -1,10 +1,8 @@
-
 from queue import PriorityQueue
 
 from practica import joc
 from practica.joc import Accions
 from practica.estat import Estat
-
 
 class Viatger(joc.Viatger):
     def __init__(self, *args, **kwargs):
@@ -12,6 +10,7 @@ class Viatger(joc.Viatger):
         self.__oberts = None
         self.__tancats = None
         self.__accions = None
+        self.__nom = args[0]
 
     def pinta(self, display):
         pass
@@ -28,7 +27,6 @@ class Viatger(joc.Viatger):
             if actual in self.__tancats:
                 continue
             if actual.es_meta(desti):
-                print("YESSSSSSSSSSSSSSS")
                 self.__accions = actual.accions_previes
                 break
 
@@ -42,15 +40,17 @@ class Viatger(joc.Viatger):
 
 
     def actua(self, percepcio: dict) -> Accions | tuple[Accions, str]:
-        
+
+
         pos_agent = percepcio["AGENTS"]
-        estat_inicial = Estat(percepcio["TAULELL"],percepcio["PARETS"], pos_agent["Agent 1"])
+        estat_inicial = Estat(percepcio["TAULELL"],percepcio["PARETS"], pos_agent[self.__nom])
         desti = percepcio["DESTI"]
         if self.__accions is None:
              self.cerca(estat_inicial, desti)
 
         if self.__accions:
             acc = self.__accions.pop(0)
+
             return acc[0], acc[1]
         else:
             return Accions.ESPERAR

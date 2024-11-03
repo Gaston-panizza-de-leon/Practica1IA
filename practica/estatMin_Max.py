@@ -134,7 +134,7 @@ class Estat:
             elif accio == Accions.POSAR_PARET:
 
                 paret_x, paret_y = x + dx, y + dy
-                if self.es_posible(paret_x, paret_y):
+                """if self.es_posible(paret_x, paret_y):
                     if torn_max:
                         fills.append(
                             Estat(
@@ -156,7 +156,7 @@ class Estat:
                                 self.cost + 4,
                                 self.accions_previes
                             )
-                        )
+                        )"""
 
         return fills
 
